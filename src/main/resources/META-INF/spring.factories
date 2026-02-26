@@ -1,0 +1,12 @@
+# Background Preinitializers
+# Tomcat eagerly initialises TLS in a background thread via TomcatBackgroundPreinitializer.
+# Undertow has no equivalent — XNIO workers initialise lazily; no entry needed.
+#org.springframework.boot.autoconfigure.preinitialize.BackgroundPreinitializer=\
+#  biz.example.web.tomcat.autoconfigure.TomcatBackgroundPreinitializer
+
+# Failure Analyzers
+# Tomcat needs ConnectorStartFailureAnalyzer to diagnose Connector bind failures.
+# Undertow wraps port-in-use directly in UndertowWebServer.start() via
+# PortInUseException.ifPortBindingException() — no separate analyzer needed.
+#org.springframework.boot.diagnostics.FailureAnalyzer=\
+#  biz.example.web.tomcat.ConnectorStartFailureAnalyzer

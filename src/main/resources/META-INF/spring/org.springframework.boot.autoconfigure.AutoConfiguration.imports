@@ -1,0 +1,9 @@
+# Tomcat (reference — not active)
+#biz.example.web.tomcat.autoconfigure.actuate.web.server.TomcatReactiveManagementContextAutoConfiguration
+#biz.example.web.tomcat.autoconfigure.actuate.web.server.TomcatServletManagementContextAutoConfiguration
+#biz.example.web.tomcat.autoconfigure.metrics.TomcatMetricsAutoConfiguration
+#biz.example.web.tomcat.autoconfigure.reactive.TomcatReactiveWebServerAutoConfiguration
+#biz.example.web.tomcat.autoconfigure.servlet.TomcatServletWebServerAutoConfiguration
+
+# Undertow
+biz.example.web.undertow.autoconfigure.servlet.UndertowServletWebServerAutoConfiguration

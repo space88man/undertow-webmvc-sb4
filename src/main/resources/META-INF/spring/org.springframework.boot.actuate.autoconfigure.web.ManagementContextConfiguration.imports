@@ -1,0 +1,5 @@
+# Tomcat (reference — not active)
+#biz.example.web.tomcat.autoconfigure.actuate.web.server.TomcatReactiveManagementChildContextConfiguration
+#biz.example.web.tomcat.autoconfigure.actuate.web.server.TomcatServletManagementChildContextConfiguration
+
+# Undertow — management child context configurations not yet implemented

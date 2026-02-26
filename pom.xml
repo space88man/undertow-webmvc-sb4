@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.0.3</version>
+  </parent>
+  <groupId>biz.example</groupId>
+  <artifactId>biz-example-web-tomcat</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Embedded Tomcat Web Serverx</name>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-web-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>11.0.18</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>tomcat-annotations-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-micrometer-metrics</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-jasper</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-websocket</artifactId>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat</groupId>
+          <artifactId>tomcat-annotations-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webflux</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-core</artifactId>
+      <version>2.4.0.Beta2</version>
+    </dependency>
+    <dependency>
+      <groupId>io.undertow.ee</groupId>
+      <artifactId>undertow-servlet</artifactId>
+      <version>2.0.0.Beta2</version>
+    </dependency>
+    <dependency>
+      <groupId>io.undertow.ee</groupId>
+      <artifactId>undertow-websockets</artifactId>
+      <version>2.0.0.Beta2</version>
+    </dependency>
+  </dependencies>
+</project>
