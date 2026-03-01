@@ -3,7 +3,7 @@
 An experimental repository restoring Undertow support as an embedded web server in
 Spring Boot 4 — **Spring Web MVC (servlet stack) only**.
 
-> Created with the assistance of [Claude Sonnet 4.6](https://www.anthropic.com/claude).
+Created with the assistance of [Claude Sonnet 4.6](https://www.anthropic.com/claude).
 
 ---
 
