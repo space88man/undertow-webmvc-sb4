@@ -1,10 +1,10 @@
 # Research Report: Undertow 2.4 as a Spring Boot 4 Embedded Web Server
 
-**Date:** March 1, 2026
-**Module:** `biz.example.web.undertow`
-**Spring Boot:** 4.0.3
-**Undertow:** core `2.4.0.Beta2` / servlet `2.0.0.Beta2` / websockets `2.0.0.Beta2`
-**Target servlet spec:** Jakarta Servlet 6.1
+**Date:** March 1, 2026  
+**Module:** `biz.example.web.undertow`  
+**Spring Boot:** 4.0.3  
+**Undertow:** core `2.4.0.Beta2` / servlet `2.0.0.Beta2` / websockets `2.0.0.Beta2`  
+**Target servlet spec:** Jakarta Servlet 6.1  
 
 ---
 
