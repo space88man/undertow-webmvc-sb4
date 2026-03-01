@@ -13,6 +13,10 @@ Functional and tested. The servlet stack starts, serves HTTP/1.1, HTTP/2 clearte
 and WebSocket traffic. See [Research-Report.md](Research-Report.md) for a full account of
 the implementation, design decisions, and bugs found along the way.
 
+Supports port sharing with gRPC using spring-grpc and grpc-servlet
+(spring-grpc-server-web-spring-boot-starter): correctly handles
+trailers-only responses (like Jetty, native grpc-netty) unlike Tomcat.
+
 ---
 
 ## Important Notes
