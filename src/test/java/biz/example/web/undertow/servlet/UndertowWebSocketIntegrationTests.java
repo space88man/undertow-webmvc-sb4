@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import biz.example.web.undertow.autoconfigure.UndertowServerProperties;
 import biz.example.web.undertow.autoconfigure.servlet.UndertowWebSocketServletWebServerCustomizer;
 import org.springframework.boot.web.server.WebServer;
 
@@ -161,8 +162,8 @@ class UndertowWebSocketIntegrationTests {
     private WebServer startWithEchoEndpoint() {
         UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory(0);
 
-        // Step 1: activate the WebSocket container (adds blank WebSocketDeploymentInfo)
-        new UndertowWebSocketServletWebServerCustomizer().customize(factory);
+        // Step 1: activate the WebSocket container (adds WebSocketDeploymentInfo with buffer pool)
+        new UndertowWebSocketServletWebServerCustomizer(new UndertowServerProperties()).customize(factory);
 
         // Step 2: register our annotated endpoint into the WebSocketDeploymentInfo
         // that was just added by the WS customizer (customizers run in registration order)
