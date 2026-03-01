@@ -60,8 +60,9 @@ public final class UndertowServletWebServerAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-        UndertowWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
-            return new UndertowWebSocketServletWebServerCustomizer();
+        UndertowWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer(
+                UndertowServerProperties undertowProperties) {
+            return new UndertowWebSocketServletWebServerCustomizer(undertowProperties);
         }
 
     }
