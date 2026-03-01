@@ -8,7 +8,7 @@
     <version>4.0.3</version>
   </parent>
   <groupId>biz.example</groupId>
-  <artifactId>biz-example-web-tomcat</artifactId>
+  <artifactId>biz-example-web-undertow</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Embedded Tomcat Web Serverx</name>
