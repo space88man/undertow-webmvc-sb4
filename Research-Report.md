@@ -10,7 +10,7 @@
 
 ## 1. Objective
 
-Implement `spring-boot-undertow`: a self-contained embedded Undertow web server module
+Implement `biz-example-web-undertow`: a self-contained embedded Undertow web server module
 for Spring Boot 4, supporting the full Servlet stack (Jakarta Servlet 6.1). Reactive/WebFlux
 was explicitly excluded because it requires internal classes from Spring Framework 7.x that
 are not part of the public SPI.

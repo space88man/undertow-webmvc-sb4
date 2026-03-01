@@ -1,4 +1,4 @@
-# spring-boot-undertow
+# biz-example-web-undertow
 
 An experimental repository restoring Undertow support as an embedded web server in
 Spring Boot 4 — **Spring Web MVC (servlet stack) only**.
