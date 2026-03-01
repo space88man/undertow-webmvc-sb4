@@ -84,8 +84,7 @@ public class UndertowWebServer implements WebServer {
             }
             catch (Exception ex) {
                 try {
-                    PortInUseException.ifPortBindingException(ex,
-                            (bindException) -> new PortInUseException(getPort(), ex));
+                    PortInUseException.throwIfPortBindingException(ex, this::getPort);
                     throw new WebServerException("Unable to start embedded Undertow", ex);
                 }
                 finally {
@@ -195,7 +194,7 @@ public class UndertowWebServer implements WebServer {
      * Returns whether the Undertow server is started.
      * @return {@code true} if started
      */
-    boolean isStarted() {
+    protected boolean isStarted() {
         return this.started;
     }
 

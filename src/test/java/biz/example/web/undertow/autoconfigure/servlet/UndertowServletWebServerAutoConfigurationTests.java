@@ -75,6 +75,14 @@ class UndertowServletWebServerAutoConfigurationTests {
     }
 
     @Test
+    void websocketCustomizerIsAbsentWhenBootstrapIsNotOnClasspath() {
+        contextRunner
+                .withClassLoader(new FilteredClassLoader("io.undertow.websockets.jsr.Bootstrap"))
+                .run((context) ->
+                        assertThat(context).doesNotHaveBean(UndertowWebSocketServletWebServerCustomizer.class));
+    }
+
+    @Test
     void eagerFilterInitPropertyFlowsThroughToCustomizer() {
         contextRunner
                 .withPropertyValues("server.undertow.eager-filter-init=false")

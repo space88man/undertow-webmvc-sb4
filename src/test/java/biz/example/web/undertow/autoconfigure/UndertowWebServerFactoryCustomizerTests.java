@@ -1,5 +1,7 @@
 package biz.example.web.undertow.autoconfigure;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -8,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.util.unit.DataSize;
 
 import biz.example.web.undertow.ConfigurableUndertowWebServerFactory;
 
@@ -124,6 +127,51 @@ class UndertowWebServerFactoryCustomizerTests {
         org.assertj.core.api.Assertions.assertThatIllegalStateException()
                 .isThrownBy(() -> customize(factory, properties))
                 .withMessageContaining("NONEXISTENT_OPTION_XYZ");
+    }
+
+    @Test
+    void socketOptionViaReflectionEngineDoesNotThrow() {
+        ConfigurableUndertowWebServerFactory factory = mock(ConfigurableUndertowWebServerFactory.class);
+
+        UndertowServerProperties properties = new UndertowServerProperties();
+        properties.getOptions().getSocket().put("TCP_NODELAY", "true");
+
+        org.assertj.core.api.Assertions.assertThatNoException()
+                .isThrownBy(() -> customize(factory, properties));
+    }
+
+    @Test
+    void directBuffersIsMappedToFactory() {
+        ConfigurableUndertowWebServerFactory factory = mock(ConfigurableUndertowWebServerFactory.class);
+
+        UndertowServerProperties properties = new UndertowServerProperties();
+        properties.setDirectBuffers(true);
+
+        customize(factory, properties);
+
+        verify(factory).setUseDirectBuffers(true);
+    }
+
+    @Test
+    void noRequestTimeoutDoesNotThrow() {
+        ConfigurableUndertowWebServerFactory factory = mock(ConfigurableUndertowWebServerFactory.class);
+
+        UndertowServerProperties properties = new UndertowServerProperties();
+        properties.setNoRequestTimeout(Duration.ofSeconds(30));
+
+        org.assertj.core.api.Assertions.assertThatNoException()
+                .isThrownBy(() -> customize(factory, properties));
+    }
+
+    @Test
+    void maxHttpPostSizeDoesNotThrow() {
+        ConfigurableUndertowWebServerFactory factory = mock(ConfigurableUndertowWebServerFactory.class);
+
+        UndertowServerProperties properties = new UndertowServerProperties();
+        properties.setMaxHttpPostSize(DataSize.ofMegabytes(2));
+
+        org.assertj.core.api.Assertions.assertThatNoException()
+                .isThrownBy(() -> customize(factory, properties));
     }
 
     private void customize(ConfigurableUndertowWebServerFactory factory, UndertowServerProperties undertowProperties) {

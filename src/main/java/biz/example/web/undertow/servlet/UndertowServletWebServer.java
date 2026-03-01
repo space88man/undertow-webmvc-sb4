@@ -84,6 +84,9 @@ public class UndertowServletWebServer extends UndertowWebServer {
 
 	@Override
 	public void stop() throws WebServerException {
+		if (!isStarted()) {
+			return;
+		}
 		super.stop();
 		if (this.manager != null) {
 			try {
