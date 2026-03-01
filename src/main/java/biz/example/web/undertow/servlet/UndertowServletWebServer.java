@@ -20,6 +20,8 @@ import io.undertow.Handlers;
 import io.undertow.Undertow.Builder;
 import io.undertow.server.HttpHandler;
 import io.undertow.servlet.api.DeploymentManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 import biz.example.web.undertow.UndertowWebServer;
@@ -39,6 +41,25 @@ import org.springframework.util.StringUtils;
  * @see UndertowServletWebServerFactory
  */
 public class UndertowServletWebServer extends UndertowWebServer {
+
+	private static final Log logger = LogFactory.getLog(UndertowServletWebServer.class);
+
+	/**
+	 * Brief pause between servlet undeploy and XNIO worker teardown.
+	 *
+	 * <p>After {@code manager.undeploy()} the XNIO I/O threads are still alive and
+	 * may still receive a WebSocket CLOSE frame from a connected client. That frame
+	 * triggers {@code FrameHandler.onFullCloseMessage} which dispatches the JSR-356
+	 * {@code @OnClose} callback onto a worker thread. If {@code undertow.stop()} races
+	 * ahead and terminates the worker pool first, the dispatch throws
+	 * {@code RejectedExecutionException: XNIO007007}.
+	 *
+	 * <p>A 100 ms quiesce gives in-flight WebSocket close handshakes time to complete
+	 * on the worker while it is still alive. This mirrors the quiesce in
+	 * {@link biz.example.web.undertow.GracefulShutdown} which covers the graceful
+	 * shutdown path; this constant covers the direct {@link #stop()} path.
+	 */
+	private static final long WEBSOCKET_CLOSE_QUIESCE_MS = 100L;
 
 	private final String contextPath;
 
@@ -87,16 +108,34 @@ public class UndertowServletWebServer extends UndertowWebServer {
 		if (!isStarted()) {
 			return;
 		}
-		super.stop();
 		if (this.manager != null) {
+			// Undeploy BEFORE stopping the XNIO worker. JSR-356 UndertowSession.close0()
+			// dispatches @OnClose callbacks onto XNIO worker threads. If undertow.stop()
+			// runs first, those dispatches throw RejectedExecutionException (XNIO007007).
 			try {
-				this.manager.stop();
 				this.manager.undeploy();
 			}
 			catch (Exception ex) {
-				throw new WebServerException("Failed to undeploy Undertow servlet context", ex);
+				// Must not prevent XNIO teardown — log and continue.
+				logger.warn("Exception during servlet deployment undeploy", ex);
+			}
+			try {
+				this.manager.stop();
+			}
+			catch (Exception ex) {
+				logger.warn("Exception during deployment manager stop", ex);
+			}
+			// Allow in-flight WebSocket CLOSE frames (sent by clients) to be processed
+			// on XNIO worker threads before undertow.stop() terminates the worker pool.
+			try {
+				Thread.sleep(WEBSOCKET_CLOSE_QUIESCE_MS);
+			}
+			catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
 			}
 		}
+		// Tear down the XNIO worker last — after all servlet sessions are closed.
+		super.stop();
 	}
 
 	/**
