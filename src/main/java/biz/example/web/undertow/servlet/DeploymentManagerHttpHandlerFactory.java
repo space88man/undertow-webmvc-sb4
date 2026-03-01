@@ -42,11 +42,13 @@ class DeploymentManagerHttpHandlerFactory implements UndertowWebServer.HttpHandl
 	@Override
 	public HttpHandler getHandler(HttpHandler next) {
 		try {
-			this.deploymentManager.deploy();
+			// deploy() was already called eagerly in UndertowServletWebServerFactory.getWebServer()
+			// to set the ServletContext on the Spring ApplicationContext before bean creation.
+			// Here we only need to start() the already-deployed manager.
 			return new UndertowEmbeddedErrorHandler(this.deploymentManager.start());
 		}
 		catch (ServletException ex) {
-			throw new WebServerException("Failed to deploy Undertow servlet context", ex);
+			throw new WebServerException("Failed to start Undertow servlet context", ex);
 		}
 	}
 

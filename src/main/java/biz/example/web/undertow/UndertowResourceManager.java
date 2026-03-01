@@ -29,7 +29,10 @@ public class UndertowResourceManager implements ResourceManager {
     @Override
     public Resource getResource(String path) throws IOException {
         String resourcePath = (path.startsWith("/") ? path : "/" + path);
-        org.springframework.core.io.Resource resource = this.resourceLoader.getResource(resourcePath);
+        // Use explicit "classpath:" scheme to avoid WebApplicationContext.getResourceByPath()
+        // which returns a ServletContextResource, causing servletContext.getResource() to
+        // call back into this ResourceManager and loop infinitely.
+        org.springframework.core.io.Resource resource = this.resourceLoader.getResource("classpath:" + resourcePath);
 
         if (resource.exists()) {
             URL url = resource.getURL();

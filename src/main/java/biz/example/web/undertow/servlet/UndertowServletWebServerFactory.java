@@ -50,6 +50,10 @@ public class UndertowServletWebServerFactory extends UndertowWebServerFactory
         DeploymentInfo deployment = createDeploymentInfo(initializers);
         ServletContainer container = Servlets.defaultContainer();
         DeploymentManager manager = container.addDeployment(deployment);
+        // deploy() eagerly so the ServletContextInitializer chain fires (including
+        // SpringBoot's getSelfInitializer()) before Spring's finishBeanFactoryInitialization
+        // creates MVC beans that need a ServletContext (e.g. resourceHandlerMapping).
+        manager.deploy();
         Undertow.Builder builder = createBuilder();
         Iterable<UndertowWebServer.HttpHandlerFactory> httpHandlerFactories = createHttpHandlerFactories(
                 new DeploymentManagerHttpHandlerFactory(manager));
