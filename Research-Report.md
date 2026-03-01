@@ -189,7 +189,8 @@ an Undertow 2.4 limitation, not an implementation gap.
 
 ## 5. Production Bugs Found and Fixed by Tests
 
-Both bugs originated from imprecise SB3 → SB4 migration.
+Two bugs originated from imprecise SB3 → SB4 migration; a third was an Undertow-specific
+teardown race discovered during WebSocket integration testing.
 
 ### Bug 1: `PortInUseException` Silently Swallowed
 
@@ -226,8 +227,76 @@ guard on `UndertowWebServer` was `package-private` and therefore not accessible 
 `servlet/` subpackage.
 
 **Fix:** Promote `isStarted()` to `protected`; guard `stop()` in `UndertowServletWebServer`
-with `if (!isStarted()) return;` before delegating.
+with `if (!isStarted()) return;` before delegating.  
 **Regression test:** `stopOnAlreadyStoppedServerDoesNotThrow` in `UndertowServletWebServerFactoryTests`.
+
+### Bug 3: WebSocket `@OnClose` / XNIO Worker Teardown Race (`XNIO007007`)
+
+**Root cause:** The original `stop()` order was:
+
+```
+super.stop()          ← undertow.stop() terminates the XNIO worker pool immediately
+manager.undeploy()    ← JSR-356 session teardown needs to dispatch onto a worker thread
+manager.stop()
+```
+
+`DeploymentManager.undeploy()` triggers `ServerWebSocketContainer` teardown, which calls
+`UndertowSession.close0()`, which dispatches the JSR-356 `@OnClose` callback via
+`WorkerThread.execute()`. By the time `undeploy()` runs in this order the XNIO worker pool
+is already terminated, so every `@OnClose` dispatch throws:
+
+```
+java.util.concurrent.RejectedExecutionException: XNIO007007: Thread is terminating
+    at org.xnio.nio.WorkerThread.execute(WorkerThread.java:632)
+    at io.undertow.websockets.jsr.UndertowSession.close0(UndertowSession.java:362)
+```
+
+A secondary race exists on the graceful shutdown path: `GracefulShutdownHttpHandler.awaitShutdown()`
+reports idle as soon as the last HTTP exchange completes, but a WebSocket `@OnClose` callback
+may still be in flight on an XNIO worker thread at that instant. If the caller proceeds
+directly to `server.stop()`, the same `RejectedExecutionException` occurs.
+
+**Fix — two independent parts, both required:**
+
+**Part 1 — `UndertowServletWebServer.stop()`: reverse teardown order + quiesce**
+
+```
+manager.undeploy()    ← JSR-356 closes sessions — XNIO worker still alive ✓
+manager.stop()
+Thread.sleep(100ms)   ← quiesce: client CLOSE frames may still arrive on I/O thread;
+                         give in-flight @OnClose dispatches time to complete
+super.stop()          ← XNIO worker pool terminated safely
+```
+
+The 100 ms quiesce covers a second race window: after `undeploy()`, the XNIO I/O threads
+are still alive and may receive a WebSocket CLOSE frame from a connected client (sent by
+the test client on teardown). That frame triggers `FrameHandler.onFullCloseMessage` →
+`UndertowSession.close0()` → `WorkerThread.execute()`. Without the quiesce, `super.stop()`
+can race ahead of this path even though `undeploy()` has already run.
+
+**Part 2 — `GracefulShutdown.awaitShutdown()`: quiesce before signalling idle**
+
+```
+handler.awaitShutdown()   ← idle when last HTTP exchange completes
+Thread.sleep(200ms)       ← allow @OnClose dispatches to drain
+callback(IDLE)            ← caller proceeds to server.stop() safely
+```
+
+There is no API in Undertow or JSR-356 to wait for all `@OnClose` callbacks to complete —
+`getOpenSessions()` is scoped per endpoint, and `ServerWebSocketContainer` exposes no
+"all sessions closed" signal. The sleep is the only available mechanism short of patching
+Undertow itself.
+
+**Why both parts are needed:**
+
+| Call path | Covered by |
+|---|---|
+| `server.stop()` called directly (test teardown, context close) | Part 1 only |
+| Graceful shutdown: `shutDownGracefully()` → `callback(IDLE)` → `server.stop()` | Part 1 + Part 2 |
+
+Part 1 alone fixes both paths at the machine level. Part 2 adds a defensive margin on the
+graceful path to handle any `@OnClose` work that the XNIO I/O thread queues after
+`awaitShutdown()` returns but before `stop()` is entered.
 
 ---
 
