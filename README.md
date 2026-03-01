@@ -13,6 +13,10 @@ Functional and tested. The servlet stack starts, serves HTTP/1.1, HTTP/2 clearte
 and WebSocket traffic. See [Research-Report.md](Research-Report.md) for a full account of
 the implementation, design decisions, and bugs found along the way.
 
+Supports port sharing with gRPC using spring-grpc and grpc-servlet
+(spring-grpc-server-web-spring-boot-starter): correctly handles
+trailers-only responses (like Jetty, native grpc-netty) unlike Tomcat.
+
 ---
 
 ## Important Notes
@@ -48,7 +52,7 @@ Only `spring-boot-starter-web` (Spring MVC) is supported.
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.3</version>
+    <version>4.1.0-M2</version>
 </parent>
 
 <dependency>
