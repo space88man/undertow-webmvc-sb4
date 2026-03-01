@@ -3,7 +3,6 @@ package biz.example.web.undertow.servlet;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -88,7 +87,7 @@ class UndertowWebSocketIntegrationTests {
 
             // Verify: {"echo client message":"hello undertow"}
             ObjectNode response = (ObjectNode) MAPPER.readTree(received.get());
-            assertThat(response.get("echo client message").asText())
+            assertThat(response.get("echo client message").asString())
                     .isEqualTo("hello undertow");
 
             ws.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
@@ -104,6 +103,7 @@ class UndertowWebSocketIntegrationTests {
         try {
             int messageCount = 3;
             CountDownLatch latch = new CountDownLatch(messageCount);
+            @SuppressWarnings("unchecked")
             AtomicReference<String>[] responses = new AtomicReference[messageCount];
             for (int i = 0; i < messageCount; i++) {
                 responses[i] = new AtomicReference<>();
@@ -140,7 +140,7 @@ class UndertowWebSocketIntegrationTests {
 
             for (int i = 0; i < messageCount; i++) {
                 ObjectNode resp = (ObjectNode) MAPPER.readTree(responses[i].get());
-                assertThat(resp.get("echo client message").asText())
+                assertThat(resp.get("echo client message").asString())
                         .as("response[%d]", i)
                         .isEqualTo(payloads[i]);
             }
@@ -200,7 +200,7 @@ class UndertowWebSocketIntegrationTests {
         @OnMessage
         public String onMessage(String text, Session session) throws Exception {
             ObjectNode in = (ObjectNode) mapper.readTree(text);
-            String msg = in.get("message").asText();
+            String msg = in.get("message").asString();
 
             ObjectNode out = mapper.createObjectNode();
             out.put("echo client message", msg);

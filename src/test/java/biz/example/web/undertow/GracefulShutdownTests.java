@@ -20,11 +20,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.web.server.GracefulShutdownCallback;
 import org.springframework.boot.web.server.GracefulShutdownResult;
 
 import static org.assertj.core.api.Assertions.assertThat;

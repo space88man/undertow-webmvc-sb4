@@ -4,17 +4,12 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.web.server.autoconfigure.ServerProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
-import org.springframework.core.env.Environment;
 import org.springframework.util.unit.DataSize;
 
 import biz.example.web.undertow.ConfigurableUndertowWebServerFactory;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 

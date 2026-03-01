@@ -16,10 +16,7 @@
 
 package biz.example.web.undertow;
 
-import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.encoding.EncodingHandler;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.Headers;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.server.Compression;
 import org.springframework.util.unit.DataSize;
